@@ -40,7 +40,7 @@ client.once('ready', async () => {
     // Create the embed
     const embed = new EmbedBuilder()
         .setTitle('Liikkumisen iloa!')
-        .setDescription('Miten olet liikkunut tänään? Paina nappia avataksesi lajivalikon.');
+        .setDescription('Miten olet liikkunut tänään? Paina nappia avataksesi lajivalikon. Voit myös valita lajin täsmällisemmästä valikosta komennolla `/laji`.');
 
     // Create the button
     const openMenuButton = new ButtonBuilder()
