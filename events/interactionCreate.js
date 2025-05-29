@@ -63,7 +63,7 @@ async function openStartViewDM(user) {
 async function showEndScreenDM(user) {
     const embed = new EmbedBuilder()
         .setTitle('Kiitos vastauksistasi!')
-        .setDescription('Kysely on nyt valmis. Mukavaa päivää!');
+        .setDescription('Kysely on nyt valmis. Mukavaa päivää! \n \nOdotathan hetken, että poistan vanhat viestit tästä kanavasta. Voit aloittaa uuden kyselyn milloin tahansa sen jälkeen.');
 
     // Send the end screen in DM
     await user.send({
@@ -79,7 +79,7 @@ async function showEndScreenDM(user) {
         } catch (e) {
             // ignore
         }
-    }, 10000);
+    }, 15000);
 }
 
 module.exports = {
@@ -91,7 +91,7 @@ module.exports = {
         if (interaction.isButton() && interaction.customId === 'open_menu') {
             await openStartViewDM(user);
             if (interaction.inGuild()) {
-                await interaction.reply({ content: 'Aloitetaan kysely yksityisviestissä!', flags: MessageFlags.Ephemeral,});
+                await interaction.reply({ content: 'Aloitetaan kysely yksityisviestissä! Voit poistaa tämän viestin milloin vain.', flags: MessageFlags.Ephemeral,});
             }
             return;
         }
