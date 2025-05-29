@@ -163,7 +163,6 @@ module.exports = {
         }
         if (interaction.isButton() && interaction.customId === 'OPT_OUT') {
             userState.delete(user.id);
-            await interaction.reply({ content: 'Mielialakysely ohitettu.', ephemeral: true });
             await showEndScreenDM(user);
             return;
         }
