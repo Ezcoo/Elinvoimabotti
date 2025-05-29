@@ -49,7 +49,7 @@ async function openStartViewDM(user) {
     await deletePreviousBotDMs(user);
     const embed = new EmbedBuilder()
         .setTitle('Liikkumisen iloa!')
-        .setDescription('Miten olet liikkunut tänään? Paina nappia avataksesi lajivalikon. Voit myös hakea lajia komennolla `/laji`.');
+        .setDescription('Miten olet liikkunut tänään? Paina nappia avataksesi lajivalikon. \n\nVoit myös hakea lajia komennolla `/laji`.');
 
     const liikuin = await import('../commands/utility/liikuin.js');
     await user.send({
@@ -63,7 +63,7 @@ async function openStartViewDM(user) {
 async function showEndScreenDM(user) {
     const embed = new EmbedBuilder()
         .setTitle('Kiitos vastauksistasi!')
-        .setDescription('Kysely on nyt valmis. Mukavaa päivää! \n \nOdotathan hetken, että poistan vanhat viestit tästä kanavasta. Voit aloittaa uuden kyselyn milloin tahansa sen jälkeen.');
+        .setDescription('Kysely on nyt valmis ja vastauksesi on tallennettu. Mukavaa päivää! :) \n\nOdotathan hetken, että poistan nämä viestit tästä kanavasta. Voit aloittaa uuden kyselyn milloin tahansa sen jälkeen.');
 
     // Send the end screen in DM
     await user.send({
@@ -79,7 +79,7 @@ async function showEndScreenDM(user) {
         } catch (e) {
             // ignore
         }
-    }, 15000);
+    }, 20000);
 }
 
 module.exports = {
@@ -91,7 +91,7 @@ module.exports = {
         if (interaction.isButton() && interaction.customId === 'open_menu') {
             await openStartViewDM(user);
             if (interaction.inGuild()) {
-                await interaction.reply({ content: 'Aloitetaan kysely yksityisviestissä! Voit poistaa tämän viestin milloin vain.', flags: MessageFlags.Ephemeral,});
+                await interaction.reply({ content: 'Aloitetaan kysely yksityisviestissä! \n\n (Voit poistaa tämän ohjeviestin milloin vain.)', flags: MessageFlags.Ephemeral,});
             }
             return;
         }
