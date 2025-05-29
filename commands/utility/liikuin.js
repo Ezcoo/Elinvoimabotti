@@ -39,9 +39,10 @@ module.exports = {
 		const collectorFilter = i => i.user.id === interaction.user.id;
 
 		try {
-/* 			const chosenActivity = await response.resource.message.awaitMessageComponent( { filter: collectorFilter });
+ 			const chosenActivity = await response.resource.message.awaitMessageComponent( { filter: collectorFilter });
+			const activityLabel = response.resource.message.components[0].components[0].options.find(option => option.value === chosenActivity.values[0]).label;
 
-			await chosenActivity.update( { content: `${response.} valittu!` } ); */
+			await chosenActivity.update( { content: `**${activityLabel}** valittu!` } );
 		} catch {
 
 		}
