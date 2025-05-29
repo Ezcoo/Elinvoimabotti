@@ -14,8 +14,8 @@ module.exports = {
 		try {
 			const focusedValue = interaction.options.getFocused() ?? '';
 			const choices = [
-				'Kuntosali', 'Kävely', 'Juoksu', 'Pyöräily', 'Uinti', 'Vesijumppa', 'Hyötyliikunta', 'Ryhmäliikunta', 'Jumppa', 'Jooga', 'Pilates', 'Palloilu', 'Sulkapallo', 
-                'Sähly', 'Jalkapallo', 'Hiihto', 'Luistelu', "Jääkiekko", 'Laskettelu', 'Luonnossa liikkuminen', 'Marjastus', 'Sienestys', 'Muu laji'
+				'Hiihto', 'Hyötyliikunta', 'Jalkapallo', 'Jooga', 'Jumppa', 'Juoksu', "Jääkiekko", 'Kuntosali', 'Kävely', 'Laskettelu', 'Luistelu', 'Luonnossa liikkuminen', 
+                'Marjastus', 'Palloilu', 'Pilates', 'Pyöräily', 'Ryhmäliikunta', 'Sienestys', 'Sulkapallo', 'Sähly', 'Uinti', 'Vesijumppa', 'Muu laji'
 			];
 			let filtered = choices;
 			if (typeof focusedValue === 'string' && focusedValue.length > 0) {
