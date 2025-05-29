@@ -49,7 +49,7 @@ async function openStartViewDM(user) {
     await deletePreviousBotDMs(user);
     const embed = new EmbedBuilder()
         .setTitle('Liikkumisen iloa!')
-        .setDescription('Miten olet liikkunut tänään? Paina nappia avataksesi lajivalikon. Voit myös valita lajin täsmällisemmästä valikosta komennolla `/laji`.');
+        .setDescription('Miten olet liikkunut tänään? Paina nappia avataksesi lajivalikon. Voit myös hakea lajia komennolla `/laji`.');
 
     const liikuin = await import('../commands/utility/liikuin.js');
     await user.send({
