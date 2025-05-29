@@ -6,29 +6,68 @@ module.exports = {
 		.setName('laji')
 		.setDescription('Voit myös pikavalita liikkumistyypin kirjoittamalla sen tähän.')
 		.addStringOption(option =>
-			option.setName('laji')
+			option
+                .setName('laji')
 				.setDescription('Laji:')
 				.setAutocomplete(true)),
 	async autocomplete(interaction) {
-		const focusedValue = interaction.options.getFocused();
-		const choices = ['Pyöräily', 'Kävely', 'Juoksu', 'Kuntosali', 'Uinti'];
-		const filtered = choices.filter(choice => choice.toLowerCase().startsWith(focusedValue.toLowerCase()));
-		await interaction.respond(
-			filtered.map(choice => ({ name: choice, value: choice })),
-		);
+		try {
+			const focusedValue = interaction.options.getFocused() ?? '';
+			const choices = [
+				'Kuntosali', 'Kävely', 'Juoksu', 'Pyöräily', 'Uinti', 'Vesijumppa', 'Hyötyliikunta', 'Ryhmäliikunta', 'Jumppa', 'Jooga', 'Pilates', 'Palloilu', 'Sulkapallo', 
+                'Sähly', 'Jalkapallo', 'Hiihto', 'Luistelu', "Jääkiekko", 'Laskettelu', 'Luonnossa liikkuminen', 'Marjastus', 'Sienestys', 'Muu laji'
+			];
+			let filtered = choices;
+			if (typeof focusedValue === 'string' && focusedValue.length > 0) {
+				const normalized = focusedValue.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+				filtered = choices.filter(choice =>
+					choice.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').includes(normalized)
+				);
+			}
+			const results = filtered.slice(0, 25).map(choice => ({
+				name: String(choice),
+				value: String(choice)
+			}));
+			await interaction.respond(results.length > 0 ? results : [{ name: 'Ei tuloksia', value: 'Ei tuloksia' }]);
+		} catch (err) {
+			console.error('Autocomplete error:', err);
+			try {
+				await interaction.respond([{ name: 'Virhe', value: 'Virhe' }]);
+			} catch {}
+		}
 	},
 	async execute(interaction) {
 		const activity = interaction.options.getString('laji');
-		// Store the selected activity for this user
+		console.log(`An user selected activity ${activity} with slash command.`);
 		userState.set(interaction.user.id, { selectedLabel: activity });
 
-		// Import mood questionnaire buttons
-		const ohitaMielialakysely = require('./ohitaMielialakysely.js');
+		const passMoodQuestionnaire = require('./ohitaMielialakysely.js');
 
-		await interaction.reply({
-			content: `Valitsit: **${activity}**. Haluatko vastata mielialakyselyyn?`,
-			components: [ohitaMielialakysely.passMoodQuestionnaire()],
-			flags: MessageFlags.Ephemeral,
-		});
+		// If in a guild, move the flow to DMs after the initial reply
+		if (interaction.inGuild()) {
+			await interaction.reply({
+				content: `Valitsit lajin: **${activity}**. Jatketaan kyselyä yksityisviestissä!`,
+				flags: MessageFlags.Ephemeral,
+			});
+			try {
+				await interaction.user.send({
+					content: `Valitsit lajin: **${activity}**. Haluatko vastata mielialakyselyyn?`,
+					components: [passMoodQuestionnaire.passMoodQuestionnaire()],
+				});
+			} catch (err) {
+				console.error('Failed to send DM:', err);
+				await interaction.followUp({
+					content: 'En voinut lähettää sinulle yksityisviestiä. Tarkista yksityisviestiasetuksesi.',
+					flags: MessageFlags.Ephemeral,
+				});
+			}
+		} else {
+			// In DMs, continue as before
+			await interaction.reply({
+				content: `Valitsit lajin: **${activity}**. Haluatko vastata mielialakyselyyn?`,
+				components: [passMoodQuestionnaire.passMoodQuestionnaire()],
+				flags: MessageFlags.Ephemeral,
+			});
+		}
 	}
 };
