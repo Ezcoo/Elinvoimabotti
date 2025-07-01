@@ -1,5 +1,34 @@
 const { Events, MessageFlags, ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder } = require('discord.js');
 const { userState } = require('../state');
+const fs = require('fs');
+const path = require('path');
+
+// In-memory cache for results
+const resultCache = [];
+
+// Helper to append results to cache (anonymous, no userId)
+function cacheResult({ selectedLabel, moodBefore, moodAfter, timestamp }) {
+    resultCache.push({ selectedLabel, moodBefore, moodAfter, timestamp });
+}
+
+// Helper to flush cache to CSV
+function flushCacheToCSV() {
+    if (resultCache.length === 0) return;
+    const filePath = path.join(__dirname, '../results.csv');
+    // If file doesn't exist, add header
+    if (!fs.existsSync(filePath)) {
+        fs.writeFileSync(filePath, 'selectedLabel,moodBefore,moodAfter,timestamp\n');
+    }
+    const rows = resultCache.map(({ selectedLabel, moodBefore, moodAfter, timestamp }) =>
+        [selectedLabel, moodBefore, moodAfter, timestamp]
+            .map(field => `"${String(field).replace(/"/g, '""')}"`).join(',')
+    ).join('\n') + '\n';
+    fs.appendFileSync(filePath, rows);
+    resultCache.length = 0; // Clear cache
+}
+
+// Schedule cache flush 3 times a day (every 8 hours)
+setInterval(flushCacheToCSV, 8 * 60 * 60 * 1000);
 
 // Helper to delete previous bot DMs to the user
 async function deletePreviousBotDMs(user) {
@@ -25,6 +54,19 @@ async function deletePreviousBotDMs(user) {
     } catch (e) {
         // ignore errors (e.g., if DMs are closed)
     }
+}
+
+// Helper to append results to CSV (anonymous, no userId)
+function appendResultToCSV({ selectedLabel, moodBefore, moodAfter, timestamp }) {
+    const filePath = path.join(__dirname, '../results.csv');
+    const row = [selectedLabel, moodBefore, moodAfter, timestamp]
+        // Regex to format arrays into CSV format
+        .map(field => `"${String(field).replace(/"/g, '""')}"`).join(',') + '\n';
+    // If file doesn't exist, add header
+    if (!fs.existsSync(filePath)) {
+        fs.writeFileSync(filePath, 'selectedLabel,moodBefore,moodAfter,timestamp\n');
+    }
+    fs.appendFileSync(filePath, row);
 }
 
 async function handleMoodBeforeSelection(dm, userId, selectedLabel) {
@@ -72,7 +114,18 @@ async function showEndScreenDM(user) {
         components: [],
     });
 
-    // After 10 seconds, delete all bot DMs in the user's DM channel (but NOT guild messages)
+    // Save results to cache if available (anonymous)
+    const state = userState.get(user.id);
+    if (state && state.selectedLabel && state.moodBefore && state.moodAfter) {
+        cacheResult({
+            selectedLabel: state.selectedLabel,
+            moodBefore: state.moodBefore,
+            moodAfter: state.moodAfter,
+            timestamp: new Date().toISOString()
+        });
+    }
+
+    // After 20 seconds, delete all bot DMs in the user's DM channel (but NOT guild messages)
     setTimeout(async () => {
         try {
             await deletePreviousBotDMs(user);
